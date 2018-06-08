@@ -15,6 +15,12 @@ class Bord:
 			strBord += "\n"  	
 		return strBord
 
+	#Hier controleeren of de plek nog op het bord is
+	def IsPlekOpBord(self, plek):
+		if( plek.rij < 0 | plek.rij >= self.rijen ) return False
+		if( plek.colom < 0 | plek.colom >= self.colommen ) return False
+		return True
+
 
 class Kleur:
 	ZWART = 0
@@ -24,6 +30,9 @@ class Kleur:
 class Stuk: 
 	def __init__(self, kleur):
 		self.kleur = kleur
+
+
+
 
 
 class Plek:
@@ -42,8 +51,8 @@ class Plek:
 b = Bord()
 pion = Stuk( Kleur.ZWART )
 
-p = Plek(3,5)
+p = Plek(9,9)
 
-print( b )
+print( p )
 
   
