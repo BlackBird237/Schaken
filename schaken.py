@@ -1,25 +1,62 @@
+# -*- coding: UTF8 -*-
 #dit beschijft het bord van het schaakspel
 class Bord:
 	rijen = 8
-	colommen = 8
+	kolommen = 8
 
 	def __init__(self):
 		self.stukken = []
 
 	def __str__(self):
 		strBord = " ABCDEFGH\n"
-		for r in range( Bord.rijen): 
-			strBord += str( Bord.rijen - r)
-			for c in range( Bord.colommen ) : 
-				strBord += "-"
+		for r in reversed(range( Bord.rijen )):
+			strBord += str( r+1 )
+			for c in range( Bord.kolommen ) : 
+				stuk = self.StukVanPlek( Plek(c,r) )
+				if stuk == None:
+					strBord += "-"
+				else:
+					strBord += str( stuk )
+			
 			strBord += "\n"  	
 		return strBord
 
 	#Hier controleeren of de plek nog op het bord is
 	def IsPlekOpBord(self, plek):
-		if( plek.rij < 0 | plek.rij >= self.rijen ) return False
-		if( plek.colom < 0 | plek.colom >= self.colommen ) return False
+		if( plek.rij < 0 or plek.rij >= self.rijen ):
+			 return False
+		if( plek.kolom < 0 or plek.kolom >= self.kolommen ):
+			return False
 		return True
+
+	#Zet alle stukken in de begin stand
+	def Opstellen(self):
+		self.stukken = []
+		for k in range( 8 ):
+			self.stukken.append( Pion( Kleur.WIT,   Plek(k, 1) ))
+			self.stukken.append( Pion( Kleur.ZWART, Plek(k, 6) ))
+		for k in [0,7]:
+			self.stukken.append( Toren( Kleur.WIT,   Plek(k, 0) ))
+			self.stukken.append( Toren( Kleur.ZWART, Plek(k, 7) ))	
+		for k in [1,6]:
+			self.stukken.append( Paard( Kleur.WIT,   Plek(k, 0) ))
+			self.stukken.append( Paard( Kleur.ZWART, Plek(k, 7) ))
+		for k in [2,5]:
+			self.stukken.append( Loper( Kleur.WIT,   Plek(k, 0) ))
+			self.stukken.append( Loper( Kleur.ZWART, Plek(k, 7) ))	
+
+		self.stukken.append( Koningin( Kleur.WIT,   Plek(3, 0) ))
+		self.stukken.append( Koningin( Kleur.ZWART, Plek(3, 7) ))
+
+		self.stukken.append( Koning( Kleur.WIT,   Plek(4, 0) ))
+		self.stukken.append( Koning( Kleur.ZWART, Plek(4, 7) ))
+
+	#Hiermee kan je zien welk stuk op de deze plek staat
+	def StukVanPlek( self, plek ):
+		for stuk in self.stukken:
+			if stuk.plek.kolom == plek.kolom and stuk.plek.rij == plek.rij:
+				return stuk
+		return None
 
 
 class Kleur:
@@ -27,32 +64,95 @@ class Kleur:
 	WIT =1
 
 
-class Stuk: 
-	def __init__(self, kleur):
-		self.kleur = kleur
-
-
-
-
-
 class Plek:
-	def __init__(self, colom, rij):
-		self.colom = colom
+	#De -1 betekend dat als je niks opgeeft, dat het stuk dan
+	#naast het bord staat
+	def __init__(self, kolom = -1, rij = -1):
+		self.kolom = kolom
 		self.rij = rij
 
 	def __str__(self):
-		return chr( ord("A") + self.colom ) + str( self.rij + 1)
+		return chr( ord("A") + self.kolom ) + str( self.rij + 1)
 
 
 
 
+#Hier volgen de stukken
+class Stuk: 
+	def __init__(self, kleur):
+		self.kleur = kleur
+		self.wit = " "
+		self.zwart = " "
+
+	def __str__(self):
+		if( self.kleur == Kleur.WIT ):
+			return self.wit
+		else:
+			return self.zwart
+
+
+#dit is de pion, een meer specifieke versie van stuk
+class Pion( Stuk ):
+	def __init__(self, kleur, plek = Plek() ):
+		Stuk.__init__(self, kleur)
+		self.plek = plek
+		self.wit = "♟"
+		self.zwart = "♙"
+
+
+#Dit is toren, een meer specifieke versie van stuk
+class Toren( Stuk ):
+	def __init__(self, kleur, plek = Plek () ):
+		Stuk.__init__(self, kleur)
+		self.plek = plek
+		self.wit = "♜"
+		self.zwart = "♖"
+
+#Dit is paard, een meer specifieke versie van stuk
+class Paard( Stuk ):
+	def __init__(self, kleur, plek = Plek () ):
+		Stuk.__init__(self, kleur)
+		self.plek = plek
+		self.wit = "♞"
+		self.zwart = "♘"
+
+#Dit is loper, een meer specifieke versie van stuk
+class Loper( Stuk ):
+	def __init__(self, kleur, plek = Plek () ):
+		Stuk.__init__(self, kleur)
+		self.plek = plek
+		self.wit = "♝"
+		self.zwart = "♗"
+
+#Dit is Koningin, een meer specifieke versie van stuk
+class Koningin( Stuk ):
+	def __init__(self, kleur, plek = Plek () ):
+		Stuk.__init__(self, kleur)
+		self.plek = plek
+		self.wit = "♛"
+		self.zwart = "♕"
+
+#Dit is Koning, een meer specifieke versie van stuk
+class Koning( Stuk ):
+	def __init__(self, kleur, plek = Plek () ):
+		Stuk.__init__(self, kleur)
+		self.plek = plek
+		self.wit = "♚"
+		self.zwart = "♔"
+
+
+
+
+ 
 
 #hierder wat test code
 b = Bord()
+b.Opstellen()
+
 pion = Stuk( Kleur.ZWART )
 
-p = Plek(9,9)
+p = Pion( Kleur.WIT )
 
-print( p )
+print( b )
 
   
