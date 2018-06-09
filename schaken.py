@@ -75,9 +75,21 @@ class Plek:
 		return chr( ord("A") + self.kolom ) + str( self.rij + 1)
 
 
+def VanTekstNaarPlek( tekst, bord ):
+	tekst = tekst.lower()
+	if( len(tekst) != 2 ):
+		return None
 
+	k = ord( tekst[0] ) - ord('a')
+	r = ord( tekst[1] ) - ord('1')
+	if( k < 0 or r < 0 ):
+		return None
+	if( k >= bord.kolommen or r >= bord.rijen ):
+		return None
 
-#Hier volgen de stukken
+	return Plek( k, r )
+
+#Hier volgen de stukkenif( k < 0 or r < 0 ):
 class Stuk: 
 	def __init__(self, kleur):
 		self.kleur = kleur
@@ -141,18 +153,30 @@ class Koning( Stuk ):
 		self.zwart = "♔"
 
 
-
-
  
 
 #hierder wat test code
 b = Bord()
 b.Opstellen()
 
-pion = Stuk( Kleur.ZWART )
+doorgaan = True
+while doorgaan:
+	print( b )
+	opdrachten = raw_input("Doe iets:").split()
+	print( " ")
+	if( opdrachten[0] == "stop" ):
+		doorgaan = False
 
-p = Pion( Kleur.WIT )
+	p1 = VanTekstNaarPlek( opdrachten[0], b )
+	p2 = VanTekstNaarPlek( opdrachten[1], b )
 
-print( b )
+	if( p1 != None and p2 != None ):
+		print( "Van " + str(p1) + " naar " + str(p2) )
+
+
+exit()
+
+
+
 
   
