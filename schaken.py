@@ -12,7 +12,7 @@ class Bord:
 		for r in reversed(range( Bord.rijen )):
 			strBord += str( r+1 )
 			for c in range( Bord.kolommen ) : 
-				stuk = self.StukVanPlek( Plek(c,r) )
+				stuk = self.StukOpPlek( Plek(c,r) )
 				if stuk == None:
 					strBord += "-"
 				else:
@@ -21,7 +21,7 @@ class Bord:
 			strBord += "\n"  	
 		return strBord
 
-	#Hier controleeren of de plek nog op het bord is
+	#Hier controleeren of de plek nog op het bord i
 	def IsPlekOpBord(self, plek):
 		if( plek.rij < 0 or plek.rij >= self.rijen ):
 			 return False
@@ -51,14 +51,25 @@ class Bord:
 		self.stukken.append( Koning( Kleur.WIT,   Plek(4, 0) ))
 		self.stukken.append( Koning( Kleur.ZWART, Plek(4, 7) ))
 
+		self.beurt = Kleur.WIT
+
 	#Hiermee kan je zien welk stuk op de deze plek staat
-	def StukVanPlek( self, plek ):
+	def StukOpPlek( self, plek ):
 		for stuk in self.stukken:
 			if stuk.plek.kolom == plek.kolom and stuk.plek.rij == plek.rij:
 				return stuk
 		return None
+	# een zet is de verplaatsing van een stuk
+	def Zet (self, van, naar):
+		stuk = self.StukOpPlek(van)
+		if stuk == None: 
+			return "Daar staat niets"
+		if stuk.kleur != self.beurt: 
+			return "Niet aan andermans stukken zitten, zak"
 
 
+
+#Hier waarde kleuren
 class Kleur:
 	ZWART = 0
 	WIT =1
@@ -75,6 +86,20 @@ class Plek:
 		return chr( ord("A") + self.kolom ) + str( self.rij + 1)
 
 
+	#Dit is nodig om een plek in een set te gebruiken
+	#Plekken moeten met elkaar kunnen wordern vergeleken	
+	def __eq__(self, other):
+		if( self.kolom != other.kolom ):
+			return False
+		if( self.rij != other.rij ):
+			return False
+		return True
+	
+	def __ne__(self,other):
+		return False == self.__eq__(other)
+
+	
+#Hierdoor kan de computer een stuk text omzetten naar een plek
 def VanTekstNaarPlek( tekst, bord ):
 	tekst = tekst.lower()
 	if( len(tekst) != 2 ):
@@ -89,7 +114,7 @@ def VanTekstNaarPlek( tekst, bord ):
 
 	return Plek( k, r )
 
-#Hier volgen de stukkenif( k < 0 or r < 0 ):
+#Hier volgen de stukken   ...Wat is dit papa? if( k < 0 or r < 0 ):
 class Stuk: 
 	def __init__(self, kleur):
 		self.kleur = kleur
@@ -103,14 +128,36 @@ class Stuk:
 			return self.zwart
 
 
-#dit is de pion, een meer specifieke versie van stuk
+#Dit is de pion, een meer specifieke versie van stuk
 class Pion( Stuk ):
 	def __init__(self, kleur, plek = Plek() ):
 		Stuk.__init__(self, kleur)
 		self.plek = plek
 		self.wit = "♟"
 		self.zwart = "♙"
+	# Hier een lijst met alle mogelijke plekken waar
+	# een pion heen gezet kan worden.
+	def MogelijkePlekken(self, bord):
+		lijst = []
+		if self.kleur == Kleur.wit:
+			p = Plek( self.plek.kolom, self.plek.rij +1 )
+			if bord.StukOpPlek(p) == None:
+				lijst.append(p)
+				#Pion in eersten zet mogelijk twee vooruit. 
+				if( p.rij == 2 ):
+					p = Plek( p.kolom, 3 ) 
+					if bord.StukOpPlek(p) == None:
+						lijst.append(p)
 
+
+		else:
+			p = Plek( self.plek.kolom, self.plek.rij -1 )
+			if bord.StukOpPlek(p) == None:
+				lijst.append(p)
+				if( p.rij == 5 ):
+					p = Plek( p.kolom, 6 ) 
+					if bord.StukOpPlek(p) == None:
+						lijst.append(p)
 
 #Dit is toren, een meer specifieke versie van stuk
 class Toren( Stuk ):
@@ -153,30 +200,22 @@ class Koning( Stuk ):
 		self.zwart = "♔"
 
 
- 
+if __name__ == '__main__':
 
-#hierder wat test code
-b = Bord()
-b.Opstellen()
+	#hieronder wat testcode, (wat je komt te zien)
+	b = Bord()
+	b.Opstellen()
 
-doorgaan = True
-while doorgaan:
-	print( b )
-	opdrachten = raw_input("Doe iets:").split()
-	print( " ")
-	if( opdrachten[0] == "stop" ):
-		doorgaan = False
+	doorgaan = True
+	while doorgaan:
+		print( b )
+		opdrachten = raw_input("Doe iets:").split()
+		if( opdrachten[0] == "stop" ):
+			doorgaan = False
 
-	p1 = VanTekstNaarPlek( opdrachten[0], b )
-	p2 = VanTekstNaarPlek( opdrachten[1], b )
+		if (len(opdrachten)>= 2):
+			van = VanTekstNaarPlek( opdrachten[0], b )
+			naar = VanTekstNaarPlek( opdrachten[1], b )
 
-	if( p1 != None and p2 != None ):
-		print( "Van " + str(p1) + " naar " + str(p2) )
-
-
-exit()
-
-
-
-
-  
+			if( van != None and naar != None ):
+				print(b.Zet(van, naar))
