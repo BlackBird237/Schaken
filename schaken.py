@@ -1,5 +1,7 @@
 # -*- coding: UTF8 -*-
 #dit beschijft het bord van het schaakspel
+from stukken import *
+
 class Bord:
 	rijen = 8
 	kolommen = 8
@@ -67,6 +69,14 @@ class Bord:
 		if stuk.kleur != self.beurt: 
 			return "Niet aan andermans stukken zitten, zak"
 
+		if not naar in stuk.MogelijkePlekken(b):
+		 	return "Dat kan kannie toch nie"
+	 	slaan = self.StukOpPlek(naar)
+	 	if slaan != None:
+	 		self.stukken.remove(slaan)
+	 	stuk.plek = naar
+
+	 	self.beurt = Kleur.ZWART if self.beurt == Kleur.WIT else Kleur.WIT
 
 
 #Hier waarde kleuren
@@ -89,6 +99,8 @@ class Plek:
 	#Dit is nodig om een plek in een set te gebruiken
 	#Plekken moeten met elkaar kunnen wordern vergeleken	
 	def __eq__(self, other):
+		if  other == None :
+			return False
 		if( self.kolom != other.kolom ):
 			return False
 		if( self.rij != other.rij ):
@@ -114,90 +126,7 @@ def VanTekstNaarPlek( tekst, bord ):
 
 	return Plek( k, r )
 
-#Hier volgen de stukken   ...Wat is dit papa? if( k < 0 or r < 0 ):
-class Stuk: 
-	def __init__(self, kleur):
-		self.kleur = kleur
-		self.wit = " "
-		self.zwart = " "
 
-	def __str__(self):
-		if( self.kleur == Kleur.WIT ):
-			return self.wit
-		else:
-			return self.zwart
-
-
-#Dit is de pion, een meer specifieke versie van stuk
-class Pion( Stuk ):
-	def __init__(self, kleur, plek = Plek() ):
-		Stuk.__init__(self, kleur)
-		self.plek = plek
-		self.wit = "♟"
-		self.zwart = "♙"
-	# Hier een lijst met alle mogelijke plekken waar
-	# een pion heen gezet kan worden.
-	def MogelijkePlekken(self, bord):
-		lijst = []
-		if self.kleur == Kleur.wit:
-			p = Plek( self.plek.kolom, self.plek.rij +1 )
-			if bord.StukOpPlek(p) == None:
-				lijst.append(p)
-				#Pion in eersten zet mogelijk twee vooruit. 
-				if( p.rij == 2 ):
-					p = Plek( p.kolom, 3 ) 
-					if bord.StukOpPlek(p) == None:
-						lijst.append(p)
-
-
-		else:
-			p = Plek( self.plek.kolom, self.plek.rij -1 )
-			if bord.StukOpPlek(p) == None:
-				lijst.append(p)
-				if( p.rij == 5 ):
-					p = Plek( p.kolom, 6 ) 
-					if bord.StukOpPlek(p) == None:
-						lijst.append(p)
-
-#Dit is toren, een meer specifieke versie van stuk
-class Toren( Stuk ):
-	def __init__(self, kleur, plek = Plek () ):
-		Stuk.__init__(self, kleur)
-		self.plek = plek
-		self.wit = "♜"
-		self.zwart = "♖"
-
-#Dit is paard, een meer specifieke versie van stuk
-class Paard( Stuk ):
-	def __init__(self, kleur, plek = Plek () ):
-		Stuk.__init__(self, kleur)
-		self.plek = plek
-		self.wit = "♞"
-		self.zwart = "♘"
-
-#Dit is loper, een meer specifieke versie van stuk
-class Loper( Stuk ):
-	def __init__(self, kleur, plek = Plek () ):
-		Stuk.__init__(self, kleur)
-		self.plek = plek
-		self.wit = "♝"
-		self.zwart = "♗"
-
-#Dit is Koningin, een meer specifieke versie van stuk
-class Koningin( Stuk ):
-	def __init__(self, kleur, plek = Plek () ):
-		Stuk.__init__(self, kleur)
-		self.plek = plek
-		self.wit = "♛"
-		self.zwart = "♕"
-
-#Dit is Koning, een meer specifieke versie van stuk
-class Koning( Stuk ):
-	def __init__(self, kleur, plek = Plek () ):
-		Stuk.__init__(self, kleur)
-		self.plek = plek
-		self.wit = "♚"
-		self.zwart = "♔"
 
 
 if __name__ == '__main__':
