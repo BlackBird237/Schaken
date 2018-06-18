@@ -16,7 +16,7 @@ class Bord:
 			for c in range( Bord.kolommen ) : 
 				stuk = self.StukOpPlek( Plek(c,r) )
 				if stuk == None:
-					strBord += "-"
+					strBord += "L"
 				else:
 					strBord += str( stuk )
 			
@@ -61,70 +61,24 @@ class Bord:
 			if stuk.plek.kolom == plek.kolom and stuk.plek.rij == plek.rij:
 				return stuk
 		return None
+
 	# een zet is de verplaatsing van een stuk
 	def Zet (self, van, naar):
 		stuk = self.StukOpPlek(van)
 		if stuk == None: 
 			return "Daar staat niets"
 		if stuk.kleur != self.beurt: 
-			return "Niet aan andermans stukken zitten, zak"
+			return "Niet aan andermans stukken zitten, vriend"
 
 		if not naar in stuk.MogelijkePlekken(b):
-		 	return "Dat kan kannie toch nie"
+		 	return "Dat kannie toch nie"
 	 	slaan = self.StukOpPlek(naar)
 	 	if slaan != None:
 	 		self.stukken.remove(slaan)
 	 	stuk.plek = naar
 
 	 	self.beurt = Kleur.ZWART if self.beurt == Kleur.WIT else Kleur.WIT
-
-
-#Hier waarde kleuren
-class Kleur:
-	ZWART = 0
-	WIT =1
-
-
-class Plek:
-	#De -1 betekend dat als je niks opgeeft, dat het stuk dan
-	#naast het bord staat
-	def __init__(self, kolom = -1, rij = -1):
-		self.kolom = kolom
-		self.rij = rij
-
-	def __str__(self):
-		return chr( ord("A") + self.kolom ) + str( self.rij + 1)
-
-
-	#Dit is nodig om een plek in een set te gebruiken
-	#Plekken moeten met elkaar kunnen wordern vergeleken	
-	def __eq__(self, other):
-		if  other == None :
-			return False
-		if( self.kolom != other.kolom ):
-			return False
-		if( self.rij != other.rij ):
-			return False
-		return True
-	
-	def __ne__(self,other):
-		return False == self.__eq__(other)
-
-	
-#Hierdoor kan de computer een stuk text omzetten naar een plek
-def VanTekstNaarPlek( tekst, bord ):
-	tekst = tekst.lower()
-	if( len(tekst) != 2 ):
-		return None
-
-	k = ord( tekst[0] ) - ord('a')
-	r = ord( tekst[1] ) - ord('1')
-	if( k < 0 or r < 0 ):
-		return None
-	if( k >= bord.kolommen or r >= bord.rijen ):
-		return None
-
-	return Plek( k, r )
+	 	return "Daar!"
 
 
 
@@ -138,7 +92,9 @@ if __name__ == '__main__':
 	doorgaan = True
 	while doorgaan:
 		print( b )
-		opdrachten = raw_input("Doe iets:").split()
+
+		aanzet = "wit" if b.beurt == Kleur.WIT else "zwart"
+		opdrachten = raw_input( aanzet + " is aan zet:").split()
 		if( opdrachten[0] == "stop" ):
 			doorgaan = False
 
