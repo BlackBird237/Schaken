@@ -76,11 +76,14 @@ class Stuk:
 
 #Dit is de pion, een meer specifieke versie van stuk
 class Pion( Stuk ):
+	waarde = 1
+
 	def __init__(self, kleur, plek = Plek() ):
 		Stuk.__init__(self, kleur)
 		self.plek = plek
 		self.wit = "♟"
 		self.zwart = "♙"
+	
 	# Hier een lijst met alle mogelijke plekken waar
 	# een pion heen gezet kan worden.
 	def MogelijkePlekken(self, bord):
@@ -137,6 +140,7 @@ class Pion( Stuk ):
 
 #Dit is toren, een meer specifieke versie van stuk
 class Toren( Stuk ):
+	waarde = 5
 	def __init__(self, kleur, plek = Plek () ):
 		Stuk.__init__(self, kleur)
 		self.plek = plek
@@ -147,8 +151,8 @@ class Toren( Stuk ):
 		lijst = []
 		links = [ Plek( self.plek.kolom  - i, self.plek.rij) for i in range( 1, bord.kolommen ) ]
 		rechts= [ Plek( self.plek.kolom  + i, self.plek.rij) for i in range( 1, bord.kolommen ) ]
-		boven = [ Plek( self.plek.kolom , self.plek.rij + i) for i in range( 1, bord.rijen ) ]
-		onder = [ Plek( self.plek.kolom , self.plek.rij - i) for i in range( 1, bord.rijen ) ]
+		boven = [ Plek( self.plek.kolom , self.plek.rij + i) for i in range( 1, bord.rijen  ) ]
+		onder = [ Plek( self.plek.kolom , self.plek.rij - i) for i in range( 1, bord.rijen  ) ]
 		richtingen = [ links, rechts, boven, onder ]
 		for richting in richtingen: 
 			for stap in richting:
@@ -163,6 +167,7 @@ class Toren( Stuk ):
 
 #Dit is paard, een meer specifieke versie van stuk
 class Paard( Stuk ):
+	waarde = 3
 	def __init__(self, kleur, plek = Plek () ):
 		Stuk.__init__(self, kleur)
 		self.plek = plek
@@ -170,9 +175,17 @@ class Paard( Stuk ):
 		self.zwart = "♘"
 
 	def MagNaarPlek( self, plek ):
-		MagNaarPlek( self.bord, self, plek )
+		return MagNaarPlek( self.bord, self, plek )
 
-	#lijst met de mogelijke zetten van het paard
+	#def MagPaardNaarPlek( bord, stuk, plek ):
+	#if not bord.IsPlekOpBord( plek ):
+	#	return False
+
+	#	if stukWatErAlStond.kleur == stuk.kleur:
+	#	return False
+	#return True
+
+	#lijst met de mo gelijke zetten van het paard
 	def MogelijkePlekken(self, bord ):
 		lijst = [
 			Plek( self.plek.kolom+1, self.plek.rij +2 ),
@@ -194,6 +207,7 @@ class Paard( Stuk ):
 
 #Dit is loper, een meer specifieke versie van stuk
 class Loper( Stuk ):
+	waarde = 3
 	def __init__(self, kleur, plek = Plek () ):
 		Stuk.__init__(self, kleur)
 		self.plek = plek
@@ -219,6 +233,7 @@ class Loper( Stuk ):
 
 #Dit is Koningin, een meer specifieke versie van stuk
 class Koningin( Stuk ):
+	waarde = 9
 	def __init__(self, kleur, plek = Plek () ):
 		Stuk.__init__(self, kleur)
 		self.plek = plek
@@ -249,6 +264,7 @@ class Koningin( Stuk ):
 
 #Dit is Koning, een meer specifieke versie van stuk
 class Koning( Stuk ):
+	waarde = 39
 	def __init__(self, kleur, plek = Plek () ):
 		Stuk.__init__(self, kleur)
 		self.plek = plek
@@ -258,6 +274,7 @@ class Koning( Stuk ):
 	def MogelijkePlekken(self, bord):
 		lijst = []
 
+#De richtingen van koning, 
 		richtingen = [ 
 			Plek( self.plek.kolom - 1, self.plek.rij),
 			Plek( self.plek.kolom + 1, self.plek.rij),
@@ -271,8 +288,9 @@ class Koning( Stuk ):
 		for stap in richtingen: 
 			if MagNaarPlek( bord, self, stap ):
 				lijst.append( stap )
-				 
+
 		return lijst
 
 
 #TODO: rokkade
+#TODO: Niet naar aangevallen plekken

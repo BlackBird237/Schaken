@@ -1,5 +1,6 @@
 # -*- coding: UTF8 -*-
 #dit beschijft het bord van het schaakspel
+import copy
 from stukken import *
 
 class Bord:
@@ -16,12 +17,39 @@ class Bord:
 			for c in range( Bord.kolommen ) : 
 				stuk = self.StukOpPlek( Plek(c,r) )
 				if stuk == None:
-					strBord += "L"
+					strBord += "⌞"
 				else:
 					strBord += str( stuk )
 			
 			strBord += "\n"  	
 		return strBord
+
+
+#
+	def MogelijkeBorden(self, diep ):
+
+		if( diep <= 0):
+			return
+		diep -= 1
+
+		self.bordenlijst = []
+		for stuk in self.stukken:
+			if stuk.kleur != self.beurt:
+				continue
+			for plek in stuk.MogelijkePlekken(self):
+				b = Bord()
+				b.beurt = Kleur.WIT if self.beurt == Kleur.ZWART else Kleur.ZWART
+				b.stukken = copy.deepcopy(self.stukken)
+				slaan = b.StukOpPlek(plek)
+		 		if slaan != None:
+	 				b.stukken.remove(slaan)
+	 			stukcopy = b.StukOpPlek( stuk.plek )
+	 			stukcopy.plek = plek
+
+	 			b.MogelijkeBorden( diep )
+	 			self.bordenlijst.append( b )
+	 	print( diep )
+
 
 	#Hier controleeren of de plek nog op het bord i
 	def IsPlekOpBord(self, plek):
@@ -54,6 +82,14 @@ class Bord:
 		self.stukken.append( Koning( Kleur.ZWART, Plek(4, 7) ))
 
 		self.beurt = Kleur.WIT
+
+
+	def HaalWaarde( self, kleur ):
+		resultaat = 0
+		for stuk in self.stukken:
+			if stuk.kleur == kleur: 
+				resultaat += stuk.waarde
+		return resultaat
 
 	#Hiermee kan je zien welk stuk op de deze plek staat
 	def StukOpPlek( self, plek ):
@@ -95,8 +131,10 @@ if __name__ == '__main__':
 
 		aanzet = "wit" if b.beurt == Kleur.WIT else "zwart"
 		opdrachten = raw_input( aanzet + " is aan zet:").split()
-		if( opdrachten[0] == "stop" ):
-			doorgaan = False
+
+		if len( opdrachten ) ==1: 
+			if( opdrachten[0] == "stop" ):
+				doorgaan = False
 
 		if (len(opdrachten)>= 2):
 			van = VanTekstNaarPlek( opdrachten[0], b )
