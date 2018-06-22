@@ -12,7 +12,7 @@ class TestSchaken( unittest.TestCase ):
 		self.assertTrue( b.beurt == Kleur.WIT )
 		self.assertTrue( b.HaalWaarde( Kleur.WIT ) == b.HaalWaarde( Kleur.ZWART ) )
 
-		b.MogelijkeBorden(4)
+		b.MogelijkeBorden(1)
 		
 
 	def test_paard(self):
