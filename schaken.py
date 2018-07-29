@@ -105,8 +105,6 @@ class Bord:
 	def HaalWaarde( self ):
 		if( len( self.bordenlijst ) == 0 ):
 			return (self.waarde, self)
-
-		#lijst met beste zetten
 		beste = []
 
 		besteBordWaarde = 0 
