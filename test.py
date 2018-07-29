@@ -10,14 +10,13 @@ class TestSchaken( unittest.TestCase ):
 
 		#even kijken of de waarde van wit geliljk is aan de waarde van zwart. 
 		self.assertTrue( b.beurt == Kleur.WIT )
-		self.assertTrue( b.HaalWaarde( Kleur.WIT ) == b.HaalWaarde( Kleur.ZWART ) )
-
-		b.MogelijkeBorden(1)
+		#b.MogelijkeBorden(4)
 		
 
 	def test_paard(self):
 		b = Bord()
 		b.Opstellen()
+		
 		#paard = Paard( Kleur.WIT, Plek(3,3))
 
 

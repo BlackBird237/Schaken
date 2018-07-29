@@ -1,20 +1,46 @@
-# -*- coding: UTF8 -*-
-
-def MagNaarPlek( bord, stuk, plek ):
-	if not bord.IsPlekOpBord( plek ):
-		return False
-
-	stukWatErAlStond = bord.StukOpPlek( plek )
-	if stukWatErAlStond != None:
-		if stukWatErAlStond.kleur == stuk.kleur:
-			return False
-	return True
-
-
+# -*- coding: UTF8 -*-/
+  
 #Hier waarde kleuren
 class Kleur:
 	ZWART = 0
 	WIT =1
+
+class PlekType:
+	VRIJ = 0
+	WIT = 1
+	ZWART = 2
+	BUITEN = 3
+
+
+def HaalPlekType( bord, stuk, plek ):
+	if not bord.IsPlekOpBord( plek ):
+		return PlekType.BUITEN
+
+	stukWatErAlStond = bord.StukOpPlek( plek )
+	if stukWatErAlStond != None:		
+		if stukWatErAlStond.kleur == Kleur.ZWART:
+			return PlekType.ZWART
+		else:
+			return PlekType.WIT
+
+	return PlekType.VRIJ
+
+
+
+
+
+
+def MagNaarPlek( bord, stuk, plek ):
+	plektype = HaalPlekType( bord, stuk, plek )
+	if( plektype == PlekType.VRIJ ): return True
+	if( stuk.kleur == Kleur.WIT ):
+		if( plektype == PlekType.WIT ):
+			return False
+	else:
+		if( plektype == PlekType.ZWART ):
+			return False
+
+	return True
 
 	
 #Hierdoor kan de computer een stuk text omzetten naar een plek
@@ -49,6 +75,25 @@ class Stuk:
 			return self.wit
 		else:
 			return self.zwart
+
+	def StappenLijst( self, bord, richtingen ):
+		lijst = []
+
+		for richting in richtingen: 
+			for stap in richting:
+				plektype = HaalPlekType( bord, self, stap )
+				if( plektype == PlekType.BUITEN ): break;
+				if( plektype == PlekType.VRIJ ):
+					lijst.append( stap )
+				else:
+					if( self.kleur == Kleur.WIT ):
+						if( plektype == PlekType.WIT ) : break
+					else:
+						if( plektype == PlekType.ZWART ) : break
+					lijst.append( stap )
+					break;
+
+		return lijst
 
 
 #Dit is de pion, een meer specifieke versie van stuk
@@ -114,6 +159,7 @@ class Pion( Stuk ):
 #TODO: pion aan overkant -> koningin of paard ervoor terug
 
 
+
 #Dit is toren, een meer specifieke versie van stuk
 class Toren( Stuk ):
 	waarde = 5
@@ -123,18 +169,13 @@ class Toren( Stuk ):
 		self.zwart = "♖"
 	
 	def MogelijkePlekken(self, van, bord):
-		lijst = []
 		links = [ ( van[0]  - i, van[1]) for i in range( 1, bord.kolommen ) ]
 		rechts= [ ( van[0]  + i, van[1]) for i in range( 1, bord.kolommen ) ]
 		boven = [ ( van[0] , van[1] + i) for i in range( 1, bord.rijen  ) ]
 		onder = [ ( van[0] , van[1] - i) for i in range( 1, bord.rijen  ) ]
 		richtingen = [ links, rechts, boven, onder ]
-		for richting in richtingen: 
-			for stap in richting:
-				if not MagNaarPlek( bord, self, stap ):
-					break
-				lijst.append( stap ) 
-		return lijst
+	
+		return self.StappenLijst( bord, richtingen )
 
 #TODO: Rokkade?
 
@@ -179,7 +220,6 @@ class Loper( Stuk ):
 
 	#Maak een lijstje van alle plekken op het bord waar dit stuk heen kan
 	def MogelijkePlekken(self, van, bord):
-		lijst = []
 		maxstappen =  bord.kolommen if bord.kolommen > bord.rijen else bord.rijen
 		rechtsboven = [ ( van[0] + i, van[1] + i) for i in range( 1, maxstappen ) ]
 		linksboven  = [ ( van[0] - i, van[1] + i) for i in range( 1, maxstappen ) ]
@@ -187,12 +227,7 @@ class Loper( Stuk ):
 		linksonder  = [ ( van[0] - i, van[1] - i) for i in range( 1, maxstappen ) ]
 		
 		richtingen = [ linksboven, rechtsboven, rechtsonder, linksonder ]
-		for richting in richtingen: 
-			for stap in richting:
-				if not MagNaarPlek( bord, self, stap ):
-					break
-				lijst.append( stap ) 
-		return lijst
+		return self.StappenLijst( bord, richtingen )
 
 #Dit is Koningin, een meer specifieke versie van stuk
 class Koningin( Stuk ):
@@ -203,7 +238,6 @@ class Koningin( Stuk ):
 		self.zwart = "♕"
 
 	def MogelijkePlekken(self, van, bord):
-		lijst = []
 		#voor naar beneden en naar boven
 		links = [ ( van[0]  - i, van[1]) for i in range( 1, bord.kolommen ) ]
 		rechts= [ ( van[0]  + i, van[1]) for i in range( 1, bord.kolommen ) ]
@@ -217,23 +251,18 @@ class Koningin( Stuk ):
 		rechtsonder = [ ( van[0] + i, van[1] - i) for i in range( 1, maxstappen ) ]
 		linksonder  = [ ( van[0] - i, van[1] - i) for i in range( 1, maxstappen ) ]
 		richtingen = [ links, rechts, boven, onder, rechtsboven, linksboven, rechtsonder, linksonder ]
-		for richting in richtingen: 
-			for stap in richting:
-				if not MagNaarPlek( bord, self, stap ):
-					break
-				lijst.append( stap ) 
-		return lijst
+
+		return self.StappenLijst( bord, richtingen )
 
 #Dit is Koning, een meer specifieke versie van stuk
 class Koning( Stuk ):
-	waarde = 39
+	waarde = 200
 	def __init__(self, kleur ):
 		Stuk.__init__(self, kleur)
 		self.wit = "♚"
 		self.zwart = "♔"
 
 	def MogelijkePlekken(self, van, bord):
-		lijst = []
 
 #De richtingen van koning, 
 		richtingen = [ 
@@ -245,12 +274,22 @@ class Koning( Stuk ):
 			( van[0] - 1, van[1] + 1),
 			( van[0] + 1, van[1] - 1),
 			( van[0] - 1, van[1] - 1)]
-
-		for stap in richtingen: 
-			if MagNaarPlek( bord, self, stap ):
+		
+		lijst = []
+		for stap in richtingen:
+			plektype = HaalPlekType( bord, self, stap )
+			if( plektype == PlekType.BUITEN ): continue
+			if( plektype == PlekType.VRIJ ):
 				lijst.append( stap )
-
+			else:
+				if( self.kleur == Kleur.WIT ):
+					if( plektype == PlekType.WIT ) : continue
+				else:
+					if( plektype == PlekType.ZWART ) : continue
+				lijst.append( stap )
+	
 		return lijst
+
 
 
 #TODO: rokkade

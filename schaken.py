@@ -1,6 +1,7 @@
 # -*- coding: UTF8 -*-
 #dit beschijft het bord van het schaakspel
 import copy
+import random 
 from stukken import *
 
 class Bord:
@@ -9,6 +10,7 @@ class Bord:
 
 	def __init__(self):
 		self.stukken = {}
+		self.bordenlijst = []
 
 	def __str__(self):
 		strBord = " ABCDEFGH\n"
@@ -26,11 +28,19 @@ class Bord:
 		return strBord
 
 
-#
+#Ookwel subborden. De borden die komen na alle mogelijke zetten
 	def MogelijkeBorden( self, diep ):
 
 		if( diep <= 0):
+			self.waarde = 0			
+			for plek in self.stukken:
+				stuk = self.stukken[plek]; 
+				if  stuk.kleur == Kleur.WIT: 
+					self.waarde += stuk.waarde
+				else:
+					self.waarde -= stuk.waarde
 			return
+
 		diep -= 1
 
 		self.bordenlijst = []
@@ -40,8 +50,10 @@ class Bord:
 			if stuk.kleur != self.beurt:
 				continue
 			for naar in stuk.MogelijkePlekken( van, self ):
-				print( VanPlekNaarTekst( van ) + " naar " + VanPlekNaarTekst( naar ) ) 
+				#print( VanPlekNaarTekst( van ) + " naar " + VanPlekNaarTekst( naar ) ) 
 				b = Bord()
+				b.van = van
+				b.naar = naar
 				b.beurt = Kleur.WIT if self.beurt == Kleur.ZWART else Kleur.ZWART
 				b.stukken = self.stukken.copy()
 
@@ -88,13 +100,41 @@ class Bord:
 		self.beurt = Kleur.WIT
 
 
-	def HaalWaarde( self, kleur ):
-		resultaat = 0
-		for plek in self.stukken:
-			stuk = self.stukken[plek]; 
-			if  stuk.kleur == kleur: 
-				resultaat += stuk.waarde
-		return resultaat
+	#geeft een tuple met een waarde voor de
+	#beoordeling van het bord. en  het bord zelf
+	def HaalWaarde( self ):
+		if( len( self.bordenlijst ) == 0 ):
+			return (self.waarde, self)
+
+		#lijst met beste zetten
+		beste = []
+
+		besteBordWaarde = 0 
+		for b in self.bordenlijst: 
+			w = b.HaalWaarde()[0]
+			if( len( beste ) == 0 ):
+				#nog niks bekend. dus dit bord toevoegen
+				beste = [ b ]
+				besteBordWaarde = w
+			else:
+				if w == besteBordWaarde: 
+					#Als even goed dan bij de lijst met beste mogelijkheden
+					beste.append( b )
+				else:
+					#afhankelijk van wie er aan zet is  					
+					if self.beurt == Kleur.WIT : 
+						if w > besteBordWaarde :
+							beste = [ b ]
+							besteBordWaarde = w
+					else:
+						if w < besteBordWaarde :
+							beste = [ b ]
+							besteBordWaarde = w
+
+		return ( w, random.choice( beste ) )
+
+#TODO: gemiddelde berekenen als zelfde bordwaarde vaker voorkomt
+
 
 	#Hiermee kan je zien welk stuk op de deze plek staat
 	def StukOpPlek( self, plek ):
@@ -125,6 +165,7 @@ class Bord:
 
 
 
+
 if __name__ == '__main__':
 
 	#hieronder wat testcode, (wat je komt te zien)
@@ -136,11 +177,18 @@ if __name__ == '__main__':
 		print( b )
 
 		aanzet = "wit" if b.beurt == Kleur.WIT else "zwart"
-		opdrachten = raw_input( aanzet + " is aan zet:").split()
+		#opdrachten = raw_input( aanzet + " is aan zet:").split()
+		opdrachten = ["cpu"]
 
 		if len( opdrachten ) ==1: 
 			if( opdrachten[0] == "stop" ):
 				doorgaan = False
+			if( opdrachten[0] == "cpu"):				
+				b.MogelijkeBorden(3)
+				besteBord = b.HaalWaarde()[1]
+				print(besteBord.van)
+				print(b.Zet( besteBord.van, besteBord.naar))
+
 
 		if (len(opdrachten)>= 2):
 			van = VanTekstNaarPlek( opdrachten[0], b )
